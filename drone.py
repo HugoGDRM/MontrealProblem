@@ -14,6 +14,7 @@ def list_to_adj_matrix(L, n):
 graph = [(0, 1, 10), (0, 2, 10), (1, 3, 7), (1, 4, 4), (2, 3, 5), (2,
 5, 5), (5, 6, 7), (4, 6, 12), (3, 6, 9), (2, 1, 3), (4, 0, 4), (4, 3, 2), (1,
 5, 6)]
+#graph = [(0,1,10),(0, 5, 4), (0,2,2), (2, 6, 8), (0,3,8),(0,4,1),(1,2,4),(3,1,10),(4,1,3),(3,2,6),(2,4,5),(4,3,2)]
 n = 7
 M = list_to_adj_matrix(graph, n)
 
@@ -78,6 +79,19 @@ def find_minimum_pairing(odd):
                     min = d
                     min_index = v
         result.append((odd[u], odd[min_index]))
+
+
+    item1 = 0
+    while item1 < len(result):
+            diff = True
+            item2 = item1 + 1
+            while item2 < len(result):
+                if result[item1][0] == result[item2][1] and result[item1][1] == result[item2][0]:
+                    result.pop(item2)
+                    result.pop(item1)
+                    break
+                item2 += 1
+            item1 += 1
     return result
 
 print("---Matrix---")
