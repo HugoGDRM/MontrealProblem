@@ -12,8 +12,8 @@ def list_to_adj_matrix(L, n):
 #------------------------------------------------------------------------------
 # (source, destination, weight)
 graph = [(0, 1, 10), (0, 2, 10), (1, 3, 7), (1, 4, 4), (2, 3, 5), (2,
-5, 5), (5, 6, 9), (4, 6, 12), (3, 6, 7), (2, 1, 3), (4, 0, 4), (4, 3, 2), (1,
-3, 6)]
+5, 5), (5, 6, 7), (4, 6, 12), (3, 6, 9), (2, 1, 3), (4, 0, 4), (4, 3, 2), (1,
+5, 6)]
 n = 7
 M = list_to_adj_matrix(graph, n)
 
@@ -63,24 +63,26 @@ def dijkstra(M, s, d):
             #print(dist[v] > dist[u] + M[u][v])
             if M[u][v] > 0 and meet[v] is False and dist[v] > dist[u] + M[u][v]:
                 dist[v] = dist[u] + M[u][v]
-
-    print(dist)
-
+    print("{0}: source {1}, destination {2}".format(dist[d], s, d))
     return dist[d]
 
 def find_minimum_pairing(odd):
     result = []
     for u in range(len(odd)):
         min = np.inf
+        min_index = 0
         for v in range(len(odd)):
-            d = dijkstra(M, odd[u], odd[v])
-            if d < min:
-                min = d
-        result.append((odd[u], odd[v]))
-
+            if (u != v):
+                d = dijkstra(M, odd[u], odd[v])
+                if d < min:
+                    min = d
+                    min_index = v
+        result.append((odd[u], odd[min_index]))
     return result
 
+print("---Matrix---")
 print(M)
 odd = find_odd_vertices(M, n)
+print("---Odd-Vertices---")
 print(odd)
 print(find_minimum_pairing(odd))
