@@ -12,7 +12,7 @@ def list_to_adj_matrix(L, n):
 #------------------------------------------------------------------------------
 # (source, destination, weight)
 graph = [(0, 1, 10), (0, 2, 10), (1, 3, 7), (1, 4, 4), (2, 3, 5), (2,
-5, 5), (5, 6, 9), (4, 6, 12), (3, 6, 7)]
+5, 5), (5, 6, 9), (4, 6, 12), (3, 6, 7), (2, 1, 3), (4, 0, 4), (4, 3, 2)]
 n = 7
 M = list_to_adj_matrix(graph, n)
 
@@ -73,4 +73,5 @@ def find_minimum_pairing(odd):
     return result
 
 odd = find_odd_vertices(M, n)
+print(odd)
 print(find_minimum_pairing(odd))
