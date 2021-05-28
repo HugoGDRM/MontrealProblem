@@ -3,20 +3,22 @@ import numpy as np
 # L : list of edges
 # n : number of nodes
 def list_to_adj_matrix(L, n):
-    M = np.full((n,n), 0)
+    M = np.empty((n,n), dtype=tuple)
     for s, d, w in L:
-        M[s][d] = w # (capacity, flux)
-        M[d][s] = w # (capacity, flux)
+        M[s][d] = (w, 1)
+        M[d][s] = (w, 1)
     return M
 
 #------------------------------------------------------------------------------
 # (source, destination, weight)
-graph = [(0, 1, 10), (0, 2, 10), (1, 3, 7), (1, 4, 4), (2, 3, 5), (2,
-5, 5), (5, 6, 7), (4, 6, 12), (3, 6, 9), (2, 1, 3), (4, 0, 4), (4, 3, 2), (1,
-5, 6)]
-#graph = [(0,1,10),(0, 5, 4), (0,2,2), (2, 6, 8), (0,3,8),(0,4,1),(1,2,4),(3,1,10),(4,1,3),(3,2,6),(2,4,5),(4,3,2)]
+graph = [(0, 1, 10), (0, 2, 10), (1, 3, 7), (1, 4, 4), (2, 3, 5), (2, 5, 5),\
+(5, 6, 7), (4, 6, 12), (3, 6, 9), (2, 1, 3), (4, 0, 4), (4, 3, 2), (1,5, 6)]
+#graph = [(0,1,10),(0, 5, 4), (0,2,2), (2, 6, 8), (0,3,8),(0,4,1),(1,2,4)\
+#,(3,1,10),(4,1,3),(3,2,6),(2,4,5),(4,3,2)]
+
 n = 7
 M = list_to_adj_matrix(graph, n)
+#------------------------------------------------------------------------------
 
 def find_odd_vertices(M, n):
     parity = [0] * n
@@ -24,11 +26,9 @@ def find_odd_vertices(M, n):
         for v in range(n):
             if u >= v:
                 continue
-            if M[u][v] > 0:
+            if M[u][v] is not None and M[u][v][0] > 0:
                 parity[u] += 1
                 parity[v] += 1
-
-    print(parity)
 
     result = []
     for i in range(n):
@@ -47,25 +47,42 @@ def min_distance(M, meet, dist):
 
     return min_index
 
+
+def printPath(parent, j):
+        if parent[j] == -1 :
+            print(j)
+            return
+        printPath(parent , parent[j])
+        print(j)
+
+
+def printSolution(dist, parent):
+    src = 0
+    for i in range(1, len(dist)):
+        print('from ' + str(src) + ' to ' + str(i))
+        printPath(parent,i)
+
 def dijkstra(M, s, d):
     dist = [float('inf')] * n
-    dist[s] = 0
     meet = [False] * n
+    prev = [-1] * n
+
+    dist[s] = 0
 
     for curr in range(n):
         u = min_distance(M, meet, dist)
         meet[u] = True
-
         for v in range(n):
-            #print(v)
-            #print(meet)
-            #print(M[u][v] > 0)
-            #print(meet[v] is False)
-            #print(dist[v] > dist[u] + M[u][v])
-            if M[u][v] > 0 and meet[v] is False and dist[v] > dist[u] + M[u][v]:
-                dist[v] = dist[u] + M[u][v]
-    print("{0}: source {1}, destination {2}".format(dist[d], s, d))
-    return dist[d]
+            if M[u][v] is not None and  M[u][v][0] > 0 \
+                    and meet[v] is False and dist[v] > dist[u] + M[u][v][0]:
+                dist[v] = dist[u] + M[u][v][0]
+                prev[v] = u
+
+    #print("{0}: source {1}, destination {2}".format(dist[d], s, d))
+
+
+    printSolution(dist, prev)
+    return dist, prev
 
 def find_minimum_pairing(odd):
     result = []
@@ -74,9 +91,9 @@ def find_minimum_pairing(odd):
         min_index = 0
         for v in range(len(odd)):
             if (u != v):
-                d = dijkstra(M, odd[u], odd[v])
-                if d < min:
-                    min = d
+                dist, prev = dijkstra(M, odd[u], odd[v])
+                if dist[odd[v]] < min:
+                    min = dist[odd[v]]
                     min_index = v
         result.append((odd[u], odd[min_index]))
 
@@ -86,7 +103,8 @@ def find_minimum_pairing(odd):
             diff = True
             item2 = item1 + 1
             while item2 < len(result):
-                if result[item1][0] == result[item2][1] and result[item1][1] == result[item2][0]:
+                if result[item1][0] == result[item2][1] \
+                        and result[item1][1] == result[item2][0]:
                     result.pop(item2)
                     result.pop(item1)
                     break
