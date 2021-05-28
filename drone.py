@@ -1,24 +1,11 @@
 import numpy as np
 
-# L : list of edges
-# n : number of nodes
 def list_to_adj_matrix(L, n):
-    M =  [ [ [] for _ in range(n)] for _ in range(n)]
+    M = np.full((n,n), 0)
     for s, d, w in L:
-        M[s][d].append(w)
-        M[d][s].append(w)
+        M[s][d] = w
+        M[d][s] = w
     return M
-
-#------------------------------------------------------------------------------
-# (source, destination, weight)
-graph = [(0, 1, 10), (0, 2, 10), (1, 3, 7), (1, 4, 4), (2, 3, 5), (2, 5, 5),\
-(5, 6, 7), (4, 6, 12), (3, 6, 9), (2, 1, 3), (4, 0, 4), (4, 3, 2), (1,5, 6)]
-#graph = [(0,1,10),(0, 5, 4), (0,2,2), (2, 6, 8), (0,3,8),(0,4,1),(1,2,4)\
-#,(3,1,10),(4,1,3),(3,2,6),(2,4,5),(4,3,2)]
-
-n = 7
-M = list_to_adj_matrix(graph, n)
-#------------------------------------------------------------------------------
 
 def find_odd_vertices(M, n):
     parity = [0] * n
@@ -26,9 +13,9 @@ def find_odd_vertices(M, n):
         for v in range(n):
             if u >= v:
                 continue
-            if M[u][v]: # remember to remove because len(M[u][v] == 0)
-                parity[u] += len(M[u][v])
-                parity[v] += len(M[u][v])
+            if M[u][v] > 0:
+                parity[u] += 1
+                parity[v] += 1
 
     result = []
     for i in range(n):
@@ -37,7 +24,7 @@ def find_odd_vertices(M, n):
 
     return result
 
-def min_distance(M, meet, dist):
+def find_min_distance(M, meet, dist):
     min, min_index = np.inf, 0
 
     for i in range(n):
@@ -47,18 +34,20 @@ def min_distance(M, meet, dist):
 
     return min_index
 
-def dijkstra(M, s):
+#dijkstra
+def find_shortest_path(M, s):
     dist = [float('inf')] * n
     meet = [False] * n
 
     dist[s] = 0
 
     for curr in range(n):
-        u = min_distance(M, meet, dist)
+        u = find_min_distance(M, meet, dist)
         meet[u] = True
         for v in range(n):
-            if M[u][v] and not meet[v] and dist[v] > dist[u] + M[u][v][0]:
-                dist[v] = dist[u] + M[u][v][0]
+            if M[u][v] > 0 \
+                    and meet[v] is False and dist[v] > dist[u] + M[u][v]:
+                dist[v] = dist[u] + M[u][v]
 
     return dist
 
@@ -70,7 +59,7 @@ def find_minimum_pairing(odd):
         min_dist = []
         for v in range(len(odd)):
             if (u != v):
-                dist = dijkstra(M, odd[u])
+                dist = find_shortest_path(M, odd[u])
                 print(odd[u])
                 print(odd[v])
                 print(dist)
@@ -95,19 +84,30 @@ def find_minimum_pairing(odd):
 
     return result
 
-def make_graph_eulerian(M, odd):
-    res = find_minimum_pairing(odd)
-    for u,v,w in res:
-        M[u][v].append(w)
-        M[v][u].append(w)
+def make_graph_eulerian(M, graph, odd):
+    pairs = find_minimum_pairing(odd)
+    return graph + pairs
+
+# L : list of edges
+# n : number of nodes
+#------------------------------------------------------------------------------
+# (source, destination, weight)
+graph = [(0, 1, 10), (0, 2, 10), (1, 3, 7), (1, 4, 4), (2, 3, 5), (2, 5, 5),\
+(5, 6, 7), (4, 6, 12), (3, 6, 9), (2, 1, 3), (4, 0, 4), (4, 3, 2), (1,5, 6)]
+#graph = [(0,1,10),(0, 5, 4), (0,2,2), (2, 6, 8), (0,3,8),(0,4,1),(1,2,4)\
+#,(3,1,10),(4,1,3),(3,2,6),(2,4,5),(4,3,2)]
+
+n = 7
+M = list_to_adj_matrix(graph, n)
+#------------------------------------------------------------------------------
+
 
 print("---Matrix---")
-for elm in M :
-    print(elm)
+print(M)
 odd = find_odd_vertices(M, n)
 print("---Odd-Vertices---")
 print(odd)
 print(find_minimum_pairing(odd))
-make_graph_eulerian(M,odd)
-for elm in M :
-    print(elm)
+print("---Eulerian-graph---")
+print(make_graph_eulerian(M, graph, odd))
+
