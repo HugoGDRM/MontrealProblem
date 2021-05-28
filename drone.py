@@ -51,7 +51,7 @@ def find_shortest_path(M, s):
 
     return dist
 
-def find_minimum_pairing(odd):
+def find_minimum_pairing(M, odd):
     result = []
     for u in range(len(odd)):
         min = np.inf
@@ -84,9 +84,16 @@ def find_minimum_pairing(odd):
 
     return result
 
-def make_graph_eulerian(M, graph, odd):
-    pairs = find_minimum_pairing(odd)
+def make_graph_eulerian(graph, n):
+    M = list_to_adj_matrix(graph, n)
+    odd = find_odd_vertices(M, n)
+    if not odd:
+        return
+
+    pairs = find_minimum_pairing(M, odd)
     return graph + pairs
+
+
 
 # L : list of edges
 # n : number of nodes
@@ -96,18 +103,9 @@ graph = [(0, 1, 10), (0, 2, 10), (1, 3, 7), (1, 4, 4), (2, 3, 5), (2, 5, 5),\
 (5, 6, 7), (4, 6, 12), (3, 6, 9), (2, 1, 3), (4, 0, 4), (4, 3, 2), (1,5, 6)]
 #graph = [(0,1,10),(0, 5, 4), (0,2,2), (2, 6, 8), (0,3,8),(0,4,1),(1,2,4)\
 #,(3,1,10),(4,1,3),(3,2,6),(2,4,5),(4,3,2)]
-
 n = 7
-M = list_to_adj_matrix(graph, n)
 #------------------------------------------------------------------------------
 
-
-print("---Matrix---")
-print(M)
-odd = find_odd_vertices(M, n)
-print("---Odd-Vertices---")
-print(odd)
-print(find_minimum_pairing(odd))
 print("---Eulerian-graph---")
-print(make_graph_eulerian(M, graph, odd))
+print(make_graph_eulerian(graph, n))
 
