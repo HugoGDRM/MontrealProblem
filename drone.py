@@ -93,19 +93,43 @@ def make_graph_eulerian(graph, n):
     pairs = find_minimum_pairing(M, odd)
     return graph + pairs
 
+def find_eulerian_cycle(n, edges):
+    cycle = [edges[0][0]]
+    res = []
+    while True:
+        rest = []
+        for u, v, w in edges:
+            if cycle[-1] == u:
+                cycle.append(v)
+                res.append((u,v,w))
+            elif cycle[-1] == v:
+                cycle.append(u)
+                res.append((v,u,w))
+            else:
+                rest.append((u,v,w))
+        if not rest:
+            return res
+        edges = rest
+        if cycle[0] == cycle[-1]:
+            for u, v, _ in edges:
+                if u in cycle:
+                    idx = cycle.index(u)
+                    cycle = cycle[idx:-1] + cycle[0:idx+1]
+                    break
 
 
 # L : list of edges
 # n : number of nodes
 #------------------------------------------------------------------------------
 # (source, destination, weight)
-graph = [(0, 1, 10), (0, 2, 10), (1, 3, 7), (1, 4, 4), (2, 3, 5), (2, 5, 5),\
+edges = [(0, 1, 10), (0, 2, 10), (1, 3, 7), (1, 4, 4), (2, 3, 5), (2, 5, 5),\
 (5, 6, 7), (4, 6, 12), (3, 6, 9), (2, 1, 3), (4, 0, 4), (4, 3, 2), (1,5, 6)]
-#graph = [(0,1,10),(0, 5, 4), (0,2,2), (2, 6, 8), (0,3,8),(0,4,1),(1,2,4)\
+#edges = [(0,1,10),(0, 5, 4), (0,2,2), (2, 6, 8), (0,3,8),(0,4,1),(1,2,4)\
 #,(3,1,10),(4,1,3),(3,2,6),(2,4,5),(4,3,2)]
 n = 7
 #------------------------------------------------------------------------------
 
 print("---Eulerian-graph---")
-print(make_graph_eulerian(graph, n))
-
+edges = make_graph_eulerian(edges, n)
+print(edges)
+print(find_eulerian_cycle(n, edges))
