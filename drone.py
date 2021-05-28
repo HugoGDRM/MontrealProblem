@@ -3,10 +3,10 @@ import numpy as np
 # L : list of edges
 # n : number of nodes
 def list_to_adj_matrix(L, n):
-    M = np.full((n,n), 0)
+    M =  [ [ [] for _ in range(n)] for _ in range(n)]
     for s, d, w in L:
-        M[s][d] = w
-        M[d][s] = w
+        M[s][d].append(w)
+        M[d][s].append(w)
     return M
 
 #------------------------------------------------------------------------------
@@ -26,9 +26,9 @@ def find_odd_vertices(M, n):
         for v in range(n):
             if u >= v:
                 continue
-            if M[u][v] > 0:
-                parity[u] += 1
-                parity[v] += 1
+            if M[u][v]: # remember to remove because len(M[u][v] == 0)
+                parity[u] += len(M[u][v])
+                parity[v] += len(M[u][v])
 
     result = []
     for i in range(n):
@@ -57,9 +57,8 @@ def dijkstra(M, s):
         u = min_distance(M, meet, dist)
         meet[u] = True
         for v in range(n):
-            if M[u][v] > 0 \
-                    and meet[v] is False and dist[v] > dist[u] + M[u][v]:
-                dist[v] = dist[u] + M[u][v]
+            if M[u][v] and not meet[v] and dist[v] > dist[u] + M[u][v][0]:
+                dist[v] = dist[u] + M[u][v][0]
 
     return dist
 
@@ -96,12 +95,19 @@ def find_minimum_pairing(odd):
 
     return result
 
-def make_graph_eulerian(M, pairs):
-    return 0
+def make_graph_eulerian(M, odd):
+    res = find_minimum_pairing(odd)
+    for u,v,w in res:
+        M[u][v].append(w)
+        M[v][u].append(w)
 
 print("---Matrix---")
-print(M)
+for elm in M :
+    print(elm)
 odd = find_odd_vertices(M, n)
 print("---Odd-Vertices---")
 print(odd)
 print(find_minimum_pairing(odd))
+make_graph_eulerian(M,odd)
+for elm in M :
+    print(elm)
