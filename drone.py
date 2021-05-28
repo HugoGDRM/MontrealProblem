@@ -83,15 +83,15 @@ def find_minimum_pairing(odd):
     for u in range(len(odd)):
         min = np.inf
         min_index = 0
+        min_path = []
         for v in range(len(odd)):
             if (u != v):
                 dist, paths = dijkstra(M, odd[u])
-                print("Paths from " + str(u))
-                print(paths)
                 if dist[odd[v]] < min:
                     min = dist[odd[v]]
+                    min_path = paths[odd[v]]
                     min_index = v
-        result.append((odd[u], odd[min_index]))
+        result.append((odd[u], odd[min_index], min_path))
 
 
     item1 = 0
@@ -108,6 +108,7 @@ def find_minimum_pairing(odd):
             item1 += 1
     return result
 
+def make_graph_eulerian
 print("---Matrix---")
 print(M)
 odd = find_odd_vertices(M, n)
