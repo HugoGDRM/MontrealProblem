@@ -47,22 +47,14 @@ def min_distance(M, meet, dist):
 
     return min_index
 
+def get_path(prev, x, path):
+    if prev[x] == -1:
+        path.append(x)
+        return path
+    get_path(prev , prev[x], path)
+    path.append(x)
 
-def printPath(parent, j):
-        if parent[j] == -1 :
-            print(j)
-            return
-        printPath(parent , parent[j])
-        print(j)
-
-
-def printSolution(dist, parent):
-    src = 0
-    for i in range(1, len(dist)):
-        print('from ' + str(src) + ' to ' + str(i))
-        printPath(parent,i)
-
-def dijkstra(M, s, d):
+def dijkstra(M, s):
     dist = [float('inf')] * n
     meet = [False] * n
     prev = [-1] * n
@@ -78,11 +70,13 @@ def dijkstra(M, s, d):
                 dist[v] = dist[u] + M[u][v][0]
                 prev[v] = u
 
-    #print("{0}: source {1}, destination {2}".format(dist[d], s, d))
+    paths = []
+    for d in range(n):
+        path = []
+        get_path(prev, d, path)
+        paths.append(path)
 
-
-    printSolution(dist, prev)
-    return dist, prev
+    return dist, paths
 
 def find_minimum_pairing(odd):
     result = []
@@ -91,7 +85,9 @@ def find_minimum_pairing(odd):
         min_index = 0
         for v in range(len(odd)):
             if (u != v):
-                dist, prev = dijkstra(M, odd[u], odd[v])
+                dist, paths = dijkstra(M, odd[u])
+                print("Paths from " + str(u))
+                print(paths)
                 if dist[odd[v]] < min:
                     min = dist[odd[v]]
                     min_index = v
