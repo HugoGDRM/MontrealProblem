@@ -3,10 +3,10 @@ import numpy as np
 # L : list of edges
 # n : number of nodes
 def list_to_adj_matrix(L, n):
-    M = np.empty((n,n), dtype=tuple)
+    M = np.full((n,n), 0)
     for s, d, w in L:
-        M[s][d] = (w, 1)
-        M[d][s] = (w, 1)
+        M[s][d] = w
+        M[d][s] = w
     return M
 
 #------------------------------------------------------------------------------
@@ -26,7 +26,7 @@ def find_odd_vertices(M, n):
         for v in range(n):
             if u >= v:
                 continue
-            if M[u][v] is not None and M[u][v][0] > 0:
+            if M[u][v] > 0:
                 parity[u] += 1
                 parity[v] += 1
 
@@ -47,17 +47,9 @@ def min_distance(M, meet, dist):
 
     return min_index
 
-def get_path(prev, x, path):
-    if prev[x] == -1:
-        path.append(x)
-        return path
-    get_path(prev , prev[x], path)
-    path.append(x)
-
 def dijkstra(M, s):
     dist = [float('inf')] * n
     meet = [False] * n
-    prev = [-1] * n
 
     dist[s] = 0
 
@@ -65,34 +57,29 @@ def dijkstra(M, s):
         u = min_distance(M, meet, dist)
         meet[u] = True
         for v in range(n):
-            if M[u][v] is not None and  M[u][v][0] > 0 \
-                    and meet[v] is False and dist[v] > dist[u] + M[u][v][0]:
-                dist[v] = dist[u] + M[u][v][0]
-                prev[v] = u
+            if M[u][v] > 0 \
+                    and meet[v] is False and dist[v] > dist[u] + M[u][v]:
+                dist[v] = dist[u] + M[u][v]
 
-    paths = []
-    for d in range(n):
-        path = []
-        get_path(prev, d, path)
-        paths.append(path)
-
-    return dist, paths
+    return dist
 
 def find_minimum_pairing(odd):
     result = []
     for u in range(len(odd)):
         min = np.inf
         min_index = 0
-        min_path = []
+        min_dist = []
         for v in range(len(odd)):
             if (u != v):
-                dist, paths = dijkstra(M, odd[u])
+                dist = dijkstra(M, odd[u])
+                print(odd[u])
+                print(odd[v])
+                print(dist)
                 if dist[odd[v]] < min:
                     min = dist[odd[v]]
-                    min_path = paths[odd[v]]
                     min_index = v
-        result.append((odd[u], odd[min_index], min_path))
-
+                    min_dist = dist
+        result.append((odd[u], odd[min_index], min_dist[odd[min_index]]))
 
     item1 = 0
     while item1 < len(result):
@@ -106,9 +93,12 @@ def find_minimum_pairing(odd):
                     break
                 item2 += 1
             item1 += 1
+
     return result
 
-def make_graph_eulerian
+def make_graph_eulerian(M, pairs):
+    return 0
+
 print("---Matrix---")
 print(M)
 odd = find_odd_vertices(M, n)
