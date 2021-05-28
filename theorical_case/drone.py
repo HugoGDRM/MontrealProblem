@@ -24,7 +24,7 @@ def find_odd_vertices(M, n):
 
     return result
 
-def find_min_distance(M, meet, dist):
+def find_min_distance(M, n, meet, dist):
     min, min_index = np.inf, 0
 
     for i in range(n):
@@ -36,13 +36,14 @@ def find_min_distance(M, meet, dist):
 
 #dijkstra
 def find_shortest_path(M, s):
+    n = len(M)
     dist = [float('inf')] * n
     meet = [False] * n
 
     dist[s] = 0
 
     for curr in range(n):
-        u = find_min_distance(M, meet, dist)
+        u = find_min_distance(M, n, meet, dist)
         meet[u] = True
         for v in range(n):
             if M[u][v] > 0 \
@@ -60,9 +61,6 @@ def find_minimum_pairing(M, odd):
         for v in range(len(odd)):
             if (u != v):
                 dist = find_shortest_path(M, odd[u])
-                print(odd[u])
-                print(odd[v])
-                print(dist)
                 if dist[odd[v]] < min:
                     min = dist[odd[v]]
                     min_index = v
@@ -93,7 +91,7 @@ def make_graph_eulerian(graph, n):
     pairs = find_minimum_pairing(M, odd)
     return graph + pairs
 
-def find_eulerian_cycle(n, edges):
+def find_eulerian_cycle(edges, n):
     cycle = [edges[0][0]]
     res = []
     while True:
@@ -116,20 +114,3 @@ def find_eulerian_cycle(n, edges):
                     idx = cycle.index(u)
                     cycle = cycle[idx:-1] + cycle[0:idx+1]
                     break
-
-
-# L : list of edges
-# n : number of nodes
-#------------------------------------------------------------------------------
-# (source, destination, weight)
-edges = [(0, 1, 10), (0, 2, 10), (1, 3, 7), (1, 4, 4), (2, 3, 5), (2, 5, 5),\
-(5, 6, 7), (4, 6, 12), (3, 6, 9), (2, 1, 3), (4, 0, 4), (4, 3, 2), (1,5, 6)]
-#edges = [(0,1,10),(0, 5, 4), (0,2,2), (2, 6, 8), (0,3,8),(0,4,1),(1,2,4)\
-#,(3,1,10),(4,1,3),(3,2,6),(2,4,5),(4,3,2)]
-n = 7
-#------------------------------------------------------------------------------
-
-print("---Eulerian-graph---")
-edges = make_graph_eulerian(edges, n)
-print(edges)
-print(find_eulerian_cycle(n, edges))
