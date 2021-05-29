@@ -5,8 +5,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import theorical_case.drone as drone
 
 def test_function(name, edges, n, exp):
-    edges = drone.make_graph_eulerian(edges, n)
-    res = drone.find_eulerian_cycle(edges, n)
+    pairs = drone.make_graph_eulerian(edges, n)
+    res = drone.find_eulerian_cycle(edges, pairs, n)
+    print(res)
     if res == exp:
         print("OK --", name)
     else:

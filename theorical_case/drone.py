@@ -1,71 +1,55 @@
 import numpy as np
+from scipy.sparse import csr_matrix
+from scipy.sparse.csgraph import dijkstra
 
-def list_to_adj_matrix(L, n):
-    M = np.full((n,n), 0)
-    for s, d, w in L:
-        M[s][d] = w
-        M[d][s] = w
-    return M
+def edges_to_matrix(edges, n):
+    matrix = np.zeros((n, n))
+    for s, d, w in edges:
+        matrix[s][d] = w
+        matrix[d][s] = w
+    return matrix
 
-def find_odd_vertices(M, n):
-    parity = [0] * n
-    for u in range(n):
-        for v in range(n):
-            if u >= v:
-                continue
-            if M[u][v] > 0:
-                parity[u] += 1
-                parity[v] += 1
+def find_odd_vertices(edges, n):
+    parity = np.zeros(n)
+    for s, d, _ in edges:
+        parity[s] += 1
+        parity[d] += 1
 
     result = []
     for i in range(n):
         if parity[i] % 2 != 0:
             result.append(i)
-
     return result
 
-def find_min_distance(M, n, meet, dist):
-    min, min_index = np.inf, 0
+def get_path(prev, x, path):
+    if prev[x] == -9999:
+        path.append(x)
+        return path
+    get_path(prev , prev[x], path)
+    path.append(x)
 
-    for i in range(n):
-        if dist[i] < min and meet[i] is False:
-            min = dist[i]
-            min_index = i
-
-    return min_index
-
-#dijkstra
-def find_shortest_path(M, s):
-    n = len(M)
-    dist = [float('inf')] * n
-    meet = [False] * n
-
-    dist[s] = 0
-
-    for curr in range(n):
-        u = find_min_distance(M, n, meet, dist)
-        meet[u] = True
-        for v in range(n):
-            if M[u][v] > 0 \
-                    and meet[v] is False and dist[v] > dist[u] + M[u][v]:
-                dist[v] = dist[u] + M[u][v]
-
-    return dist
-
-def find_minimum_pairing(M, odd):
+def find_minimum_pairing(graph, n, odd):
     result = []
     for u in range(len(odd)):
         min = np.inf
         min_index = 0
         min_dist = []
+        min_path = []
         for v in range(len(odd)):
             if (u != v):
-                dist = find_shortest_path(M, odd[u])
+                dist, prev = dijkstra(csgraph=graph, directed=False, indices=odd[u], return_predecessors=True)
+                paths = []
+                for d in range(n):
+                    path = []
+                    get_path(prev, d, path)
+                    paths.append(path)
+
                 if dist[odd[v]] < min:
                     min = dist[odd[v]]
+                    min_path = paths[odd[v]]
                     min_index = v
                     min_dist = dist
-        result.append((odd[u], odd[min_index], min_dist[odd[min_index]]))
+        result.append((odd[u], odd[min_index], min_dist[odd[min_index]], min_path))
 
     item1 = 0
     while item1 < len(result):
@@ -79,30 +63,46 @@ def find_minimum_pairing(M, odd):
                     break
                 item2 += 1
             item1 += 1
-
     return result
 
-def make_graph_eulerian(graph, n):
-    M = list_to_adj_matrix(graph, n)
-    odd = find_odd_vertices(M, n)
+def make_graph_eulerian(edges, n):
+    odd = find_odd_vertices(edges, n)
     if not odd:
         return
 
-    pairs = find_minimum_pairing(M, odd)
-    return graph + pairs
+    M = edges_to_matrix(edges, n)
+    pairs = find_minimum_pairing(M, n, odd)
+    for s, d, w, path in pairs:
+        edges.append((s, d, int(w)))
+    return pairs
 
-def find_eulerian_cycle(edges, n):
+def find_corresponding_pair(u, v, w, pairs):
+    for i in range(len(pairs)):
+        if (u == pairs[i][0] and v == pairs[i][1]) or (u == pairs[i][1] and v == pairs[i][0]) and w == pairs[i][2]:
+            return pairs.pop(i)
+    return None
+
+def find_eulerian_cycle(edges, pairs, n):
     cycle = [edges[0][0]]
     res = []
     while True:
         rest = []
         for u, v, w in edges:
+            pair = find_corresponding_pair(u, v, w, pairs)
             if cycle[-1] == u:
                 cycle.append(v)
-                res.append((u,v,w))
+                if pair:
+                    for i in range(1, len(pair[3])):
+                        res.append((pair[3][i-1], pair[3][i]))
+                else:
+                    res.append((u,v))
             elif cycle[-1] == v:
                 cycle.append(u)
-                res.append((v,u,w))
+                if pair:
+                    for i in range(1, len(pair[3])):
+                        res.append((pair[3][i-1], pair[3][i]))
+                else:
+                    res.append((v,u))
             else:
                 rest.append((u,v,w))
         if not rest:
