@@ -31,14 +31,14 @@ def get_path(prev, x, path):
 def find_minimum_pairing(graph, n, odd):
     result = []
     for u in range(len(odd)):
+        dist, prev = dijkstra(csgraph=graph, directed=False, \
+                indices=odd[u], return_predecessors=True)
         min = np.inf
         min_index = 0
         min_dist = []
         min_path = []
         for v in range(len(odd)):
             if (u != v):
-                dist, prev = dijkstra(csgraph=graph, directed=False, \
-                        indices=odd[u], return_predecessors=True)
                 paths = []
                 for d in range(n):
                     path = []

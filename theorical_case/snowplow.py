@@ -23,18 +23,27 @@ def find_unbalanced_vertices(edges, n):
             out_co.append((i, int(abs(parity[i]))))
     return (out_co, in_co)
 
-def find_minimum_pairing(graph, n, out_u, in_u):
-    dist, pred = floyd_warshall(csgraph=graph, directed=True, \
-            return_predecessors=True)
+def get_path(prev, x, path):
+    if prev[x] == -9999:
+        path.append(x)
+        return path
+    get_path(prev , prev[x], path)
+    path.append(x)
 
-    print(dist)
+def find_minimum_pairing(graph, n, out_u, in_u):
     res = []
     meet = set()
     for s, sp in out_u:
+        dist, prev = dijkstra(csgraph=graph, directed=True, indices=s,\
+            return_predecessors=True)
+
         for d, dp in in_u:
+            path = []
+            get_path(prev, d, path)
+
             if sp == dp and str(s) not in meet and str(d) not in meet:
                 for i in range(sp):
-                    res.append((s, d, int(dist[s][d])))
+                    res.append((s, d, int(dist[d]), path))
                     new_meeting = {str(s):'', str(d):''}
                     meet.update(new_meeting)
 
@@ -47,24 +56,35 @@ def make_graph_eulerian(edges, n):
 
     M = edges_to_matrix(edges, n)
     pairs = find_minimum_pairing(M, n, out_u, in_u)
-    for s, d, w in pairs:
+    for s, d, w, _ in pairs:
         edges.append((s, d, w))
+
+    return pairs
 
 def find_corresponding_pair(u, v, w, pairs):
     for i in range(len(pairs)):
         if u == pairs[i][0] and v == pairs[i][1] and w == pairs[i][2]:
-            return pairs.pop(i)
+            return (pairs[i], i)
     return None
 
 def find_eulerian_cycle(edges, pairs, n):
+    print('EDGES', edges)
+    print('PAIRS', pairs)
     cycle = [edges[0][0]]
     while True:
         rest = []
         for u, v, w in edges:
-            #pair = find_corresponding_pair(u, v, w, pairs)
-            # FIXME : replace artificial edges by the real path
+            pair = find_corresponding_pair(u, v, w, pairs)
+            if pair:
+                path, i = pair[0][3], pair[1]
             if cycle[-1] == u:
-                cycle.append(v)
+                if pair:
+                    pairs.pop(i)
+                    cycle.pop()
+                    for x in path:
+                        cycle.append(x)
+                else:
+                    cycle.append(v)
             else:
                 rest.append((u,v,w))
         if not rest:
@@ -80,16 +100,13 @@ def find_eulerian_cycle(edges, pairs, n):
 ##############################################################################
 
 edges = [(0, 1, 10), (0, 2, 10), (1, 3, 7), (1, 4, 4), (2, 3, 5), (2, 5, 5),\
-(5, 6, 7), (6, 4, 12), (3, 6, 9), (2, 1, 3), (4, 0, 4), (4, 3, 2), (1, 5, 6)]#,\
-#(3, 2, 35), (3, 2, 35), (5, 0, 23), (6, 1, 26)]
+(5, 6, 7), (6, 4, 12), (3, 6, 9), (2, 1, 3), (4, 0, 4), (4, 3, 2), (1, 5, 6)]
 n = 7
 
 out_u, in_u = find_unbalanced_vertices(edges, n)
 M = edges_to_matrix(edges, n)
-pairs = find_minimum_pairing(M, n, out_u, in_u)
 print("OUT", out_u)
 print("IN", in_u)
-print(pairs)
-make_graph_eulerian(edges, n)
-res = find_eulerian_cycle(edges, [], n)
+pairs = make_graph_eulerian(edges, n)
+res = find_eulerian_cycle(edges, pairs, n)
 print(res)
