@@ -89,6 +89,7 @@ def find_eulerian_cycle(edges, pairs, n):
         rest = []
         for u, v, w in edges:
             pair = find_corresponding_pair(u, v, w, pairs)
+            # FIXME : replace artificial edges by the real path
             if cycle[-1] == u:
                 cycle.append(v)
                 if pair:
