@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import dijkstra
+from scipy.sparse.csgraph import floyd_warshall
 
 def edges_to_matrix(edges, n):
     matrix = np.zeros((n, n))
@@ -22,33 +23,15 @@ def find_unbalanced_vertices(edges, n):
             in_co.append((i, int(abs(parity[i]))))
     return (in_co, out_co)
 
-def find_min_distance(M, n, meet, dist):
-    min, min_index = np.inf, 0
-
-    for i in range(n):
-        if dist[i] < min and meet[i] is False:
-            min = dist[i]
-            min_index = i
-
-    return min_index
-
-#dijkstra
-def find_shortest_path(M, s):
-    n = len(M)
-    dist = [float('inf')] * n
-    meet = [False] * n
-
-    dist[s] = 0
-    for curr in range(n):
-        u = find_min_distance(M, n, meet, dist)
-        meet[u] = True
-        for v in range(n):
-            if M[u][v] > 0 \
-                    and meet[v] is False and dist[v] > dist[u] + M[u][v]:
-                dist[v] = dist[u] + M[u][v]
-    return dist
-
 def find_minimum_pairing(graph, n, in_u, out_u):
+    dist, pred = floyd_warshall(csgraph=graph, directed=True, return_predecessors=True)
+    dic_dist = {}
+    for s, _ in in_u:
+        tmp = []
+        for d, _ in out_u:
+            if dist[s][d] > 0:
+                tmp.append((d, dist[s][d]))
+        dic_dist[s] = tmp
     #FIXME
     pass
 
@@ -92,15 +75,15 @@ def find_eulerian_cycle(edges, pairs, n):
 ##############################################################################
 
 edges = [(0, 1, 10), (0, 2, 10), (1, 3, 7), (1, 4, 4), (2, 3, 5), (2, 5, 5),\
-(5, 6, 7), (6, 4, 12), (3, 6, 9), (2, 1, 3), (4, 0, 4), (4, 3, 2), (1,5, 6),\
-(3, 2, 35), (3, 2, 35), (5, 0, 23), (6, 1, 26)]
+(5, 6, 7), (6, 4, 12), (3, 6, 9), (2, 1, 3), (4, 0, 4), (4, 3, 2), (1,5, 6)]#,\
+#(3, 2, 35), (3, 2, 35), (5, 0, 23), (6, 1, 26)]
 n = 7
 
-in_odd, out_odd = find_odd_vertices(edges, n)
+in_odd, out_odd = find_unbalanced_vertices(edges, n)
 print((in_odd, out_odd))
-#M = edges_to_matrix(edges, n)
-#pairs = find_minimum_pairing(M, n, odd)
+M = edges_to_matrix(edges, n)
+find_minimum_pairing(M, n, in_odd, out_odd)
 #print(pairs)
 
-res = find_eulerian_cycle(edges, [], n)
-print(res)
+#res = find_eulerian_cycle(edges, [], n)
+#print(res)
