@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import dijkstra
+from scipy.optimize import linear_sum_assignment
 
 def find_odd_vertices(edges, n):
     parity = np.zeros(n)
@@ -29,41 +30,32 @@ def get_path(prev, x, path):
     path.append(x)
 
 def find_minimum_pairing(graph, n, odd):
+    dist_matrix = np.full((len(odd), len(odd)), np.inf)
+    prevs = [[] for _ in range(n)]
+
+    for s in range(len(odd)):
+        dist, prev = dijkstra(csgraph=graph, directed=False, indices=odd[s], return_predecessors=True)
+        prevs[odd[s]] = prev
+        for d in range(len(odd)):
+            if s != d:
+                dist_matrix[s][d] = dist[odd[d]]
+
+    row_ind, col_ind = linear_sum_assignment(dist_matrix)
+
+    set_pairs = set()
+    for i in range(len(row_ind)):
+        u, v = odd[row_ind[i]], odd[col_ind[i]]
+        if (u > v):
+            u, v = v, u
+        set_pairs.add((u, v))
+
     result = []
-    for u in range(len(odd)):
-        dist, prev = dijkstra(csgraph=graph, directed=False, \
-                indices=odd[u], return_predecessors=True)
-        min = np.inf
-        min_index = 0
-        min_dist = []
-        min_path = []
-        for v in range(len(odd)):
-            if (u != v):
-                paths = []
-                for d in range(n):
-                    path = []
-                    get_path(prev, d, path)
-                    paths.append(path)
+    for s, d in set_pairs:
+        path = []
 
-                if dist[odd[v]] < min:
-                    min = dist[odd[v]]
-                    min_path = paths[odd[v]]
-                    min_index = v
-                    min_dist = dist
-        result.append((odd[u], odd[min_index], min_dist[odd[min_index]], min_path))
+        get_path(prevs[s], d, path)
+        result.append((s, d, dist_matrix[odd.index(s)][odd.index(d)], path))
 
-    item1 = 0
-    while item1 < len(result):
-            diff = True
-            item2 = item1 + 1
-            while item2 < len(result):
-                if result[item1][0] == result[item2][1] \
-                        and result[item1][1] == result[item2][0]:
-                    result.pop(item2)
-                    result.pop(item1)
-                    break
-                item2 += 1
-            item1 += 1
     return result
 
 def make_graph_eulerian(edges, n):
@@ -81,7 +73,7 @@ def find_corresponding_pair(u, v, w, pairs):
     for i in range(len(pairs)):
         if (u == pairs[i][0] and v == pairs[i][1]) \
                 or (u == pairs[i][1] and v == pairs[i][0]) and w == pairs[i][2]:
-            return pairs.pop(i)
+            return (pairs[i], i)
     return None
 
 def find_eulerian_cycle(edges, pairs, n):
@@ -90,21 +82,23 @@ def find_eulerian_cycle(edges, pairs, n):
     while True:
         rest = []
         for u, v, w in edges:
-            path = find_corresponding_pair(u, v, w, pairs)
-            if path:
-                path = path[3]
+            pair = find_corresponding_pair(u, v, w, pairs)
+            if pair:
+                path, i = pair[0][3], pair[1]
             if cycle[-1] == u:
-                if path and len(path) > 2:
+                if pair and len(path) > 2:
                     cycle.pop()
-                    for x in path:
-                        cycle.append(x)
+                    pairs.pop(i)
+                    for x in range(len(path)):
+                        cycle.append(path[x])
                 else:
                     cycle.append(v)
             elif cycle[-1] == v:
-                if path and len(path) > 2:
+                if pair and len(path) > 2:
                     cycle.pop()
-                    for x in path:
-                        cycle.append(x)
+                    pairs.pop(i)
+                    for x in range(len(path) - 1, -1, -1):
+                        cycle.append(path[x])
                 else:
                     cycle.append(u)
             else:
@@ -119,9 +113,9 @@ def find_eulerian_cycle(edges, pairs, n):
                     cycle = cycle[idx:-1] + cycle[0:idx+1]
                     break
 
-edges = [(0, 1, 10), (0, 2, 10), (1, 3, 7), (1, 4, 4), (2, 3, 5), (2, 5, 5),\
-(5, 6, 7), (6, 4, 12), (3, 6, 9), (2, 1, 3), (4, 0, 4), (4, 3, 2), (1, 5, 6)]
-n = 7
-pairs = make_graph_eulerian(edges, n)
-res = find_eulerian_cycle(edges, pairs, n)
-print(res)
+#edges = [(0, 1, 10), (0, 2, 10), (1, 3, 7), (1, 4, 4), (2, 3, 5), (2, 5, 5),\
+#(5, 6, 7), (6, 4, 12), (3, 6, 9), (2, 1, 3), (4, 0, 4), (4, 3, 2), (1, 5, 6)]
+#n = 7
+#pairs = make_graph_eulerian(edges, n)
+#res = find_eulerian_cycle(edges, pairs, n)
+#print(res)
