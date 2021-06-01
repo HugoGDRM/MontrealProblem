@@ -6,9 +6,9 @@ import theorical_case.drone as drone
 
 def test_function(name, edges, n, exp):
     pairs = drone.make_graph_eulerian(edges, n)
-    print("PAIRS", pairs)
+    #print("PAIRS", pairs)
     res = drone.find_eulerian_cycle(edges, pairs, n)
-    print("RES", res)
+    #print("RES", res)
     if res == exp:
         print("OK --", name)
     else:
@@ -40,7 +40,7 @@ test_function("TEST_3", edges, n, exp)
 #TEST_4
 edges = [(0, 1, 2), (1, 2, 1), (2, 3, 7), (3, 7, 9), (7, 5, 4), (5, 6, 10)\
         ,(5, 4, 9), (4, 0, 8), (0, 5, 6), (2, 8, 5), (2, 4, 15), (8, 6, 12)]
-exp = [4, 5, 0, 1, 2, 3, 7, 5, 6, 8, 2, 4, 0]
+exp = [5, 6, 8, 2, 4, 0, 1, 2, 3, 7, 5, 4, 0, 5]
 n = 9
 
 test_function("TEST_4", edges, n, exp)

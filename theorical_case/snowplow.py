@@ -50,7 +50,7 @@ def find_minimum_pairing(graph, n, out_u, in_u):
     return res
 
 def make_graph_eulerian(edges, n):
-    out_u, int_u = find_unbalanced_vertices(edges, n)
+    out_u, in_u = find_unbalanced_vertices(edges, n)
     if not out_u and not in_u:
         return
 
