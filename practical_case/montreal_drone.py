@@ -13,9 +13,12 @@ def init_graph():
     # Get the city graph (from OpenStreetMap), filter only the drive ways
     return ox.graph_from_place('Issou, France', network_type='drive')
 
-city = initO_graph()
+city = init_graph()
 # Display the graph
 ox.plot_graph(city)
 eulerian_city = make_eulerian(city.to_undirected())
 ox.plot_graph(eulerian_city)
 
+eulerian_circuit = get_eulerian_circuit(eulerian_city)
+for e in eulerian_circuit:
+    print(e)
