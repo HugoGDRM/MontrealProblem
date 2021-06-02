@@ -64,7 +64,7 @@ def find_minimum_pairing(graph, n, out_u, in_u):
         u, v = OUT[row_ind[i]], IN[col_ind[i]]
         path = []
         get_path(prevs[u], v, path)
-        result.append((u, v, dist[u][v], path))
+        result.append((u, v, dist_matrix[OUT.index(u)][IN.index(v)], path))
 
     print(result)
     return result
@@ -137,12 +137,12 @@ def find_eulerian_cycle(edges, pairs, n):
 #
 #edges = [(0, 1, 10), (0, 2, 10), (1, 3, 7), (1, 4, 4), (2, 3, 5), (2, 5, 5),\
 #(5, 6, 7), (6, 4, 12), (3, 6, 9), (2, 1, 3), (4, 0, 4), (4, 3, 2), (1, 5, 6)]
-edges = [(0,1,10),(0, 5, 4), (0,2,2), (2, 6, 8), (0,3,8),(0,4,1),(1,2,4)\
-        ,(3,1,10),(4,1,3),(3,2,6),(2,4,5),(4,3,2), (6, 0, 4), (5, 4, 8)]
+#edges = [(0,1,10),(0, 5, 4), (0,2,2), (2, 6, 8), (0,3,8),(0,4,1),(1,2,4)\
+#        ,(3,1,10),(4,1,3),(3,2,6),(2,4,5),(4,3,2), (6, 0, 4), (5, 4, 8)]
 n = 7
 #
 out_u, in_u = find_unbalanced_vertices(edges, n)
 M = edges_to_matrix(edges, n)
 pairs = make_graph_eulerian(edges, n)
-#res = find_eulerian_cycle(edges, pairs, n)
-#print(res)
+res = find_eulerian_cycle(edges, pairs, n)
+print(res)
