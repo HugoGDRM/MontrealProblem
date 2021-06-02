@@ -6,10 +6,12 @@ import theorical_case.drone as drone
 
 def test_function(name, edges, n, exp):
     res = drone.chinese_postman_undirected_solver(edges, n)
+    print("graph", edges)
+    print("path", res)
     if res == exp:
-        print("OK --", name)
+        print('\033[92m' + 'OK --- ' + name + '\033[0m')
     else:
-        print("KO --", name)
+        print('\033[91m' + 'KO --- ' + name + '\033[0m')
 
 #TEST_1
 edges = [(0, 1, 10), (0, 2, 10), (1, 3, 7), (1, 4, 4), (2, 3, 5), (2, 5, 5),\
