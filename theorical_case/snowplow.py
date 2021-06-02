@@ -62,24 +62,6 @@ def find_minimum_pairing(graph, n, out_u, in_u):
 
     return result
 
-    #res = []
-    #meet = set()
-    #for s, sp in out_u:
-    #    dist, prev = dijkstra(csgraph=graph, directed=True, indices=s,\
-    #        return_predecessors=True)
-
-    #    for d, dp in in_u:
-    #        path = []
-    #        get_path(prev, d, path)
-
-    #        if sp == dp and str(s) not in meet and str(d) not in meet:
-    #            for i in range(sp):
-    #                res.append((s, d, int(dist[d]), path))
-    #                new_meeting = {str(s):'', str(d):''}
-    #                meet.update(new_meeting)
-
-    #return res
-
 def make_graph_eulerian(edges, n):
     out_u, in_u = find_unbalanced_vertices(edges, n)
     if not out_u and not in_u:
@@ -125,17 +107,3 @@ def find_eulerian_cycle(edges, pairs, n):
                     idx = cycle.index(u)
                     cycle = cycle[idx:-1] + cycle[0:idx+1]
                     break
-
-##############################################################################
-#
-#edges = [(0, 1, 10), (0, 2, 10), (1, 3, 7), (1, 4, 4), (2, 3, 5), (2, 5, 5),\
-#(5, 6, 7), (6, 4, 12), (3, 6, 9), (2, 1, 3), (4, 0, 4), (4, 3, 2), (1, 5, 6)]
-#edges = [(0,1,10),(0, 5, 4), (0,2,2), (2, 6, 8), (0,3,8),(0,4,1),(1,2,4)\
-#        ,(3,1,10),(4,1,3),(3,2,6),(2,4,5),(4,3,2), (6, 0, 4), (5, 4, 8)]
-#n = 7
-#
-#out_u, in_u = find_unbalanced_vertices(edges, n)
-#M = edges_to_matrix(edges, n)
-#pairs = make_graph_eulerian(edges, n)
-#res = find_eulerian_cycle(edges, pairs, n)
-#print(res)
