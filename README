@@ -1,5 +1,22 @@
+.
+├── AUTHORS
+├── Dockerfile
+├── practical_case
+│   ├── montreal_drone.py
+│   └── montreal_snowplow.py
+├── README
+├── requirements.txt
+├── tests
+│   ├── run.sh
+│   ├── theorical_drone_tests.py
+│   └── theorical_snowplow_tests.py
+└── theorical_case
+    ├── drone.py
+    └── snowplow.py
+
 In order to launch the testsuite:
     If the command to launch a python script is `python` and not `python3`, change it in the file `tests/run.sh` at line 5.
 
     Then run:
-    `chmod +x tests/run.sh && ./tests/run.sh`
+    `cd tests && chmod +x run.sh && ./run.sh && cd ..`
+
