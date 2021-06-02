@@ -112,10 +112,3 @@ def find_eulerian_cycle(edges, pairs, n):
                     idx = cycle.index(u)
                     cycle = cycle[idx:-1] + cycle[0:idx+1]
                     break
-
-#edges = [(0, 1, 10), (0, 2, 10), (1, 3, 7), (1, 4, 4), (2, 3, 5), (2, 5, 5),\
-#(5, 6, 7), (6, 4, 12), (3, 6, 9), (2, 1, 3), (4, 0, 4), (4, 3, 2), (1, 5, 6)]
-#n = 7
-#pairs = make_graph_eulerian(edges, n)
-#res = find_eulerian_cycle(edges, pairs, n)
-#print(res)
