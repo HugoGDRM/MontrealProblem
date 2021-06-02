@@ -1,6 +1,7 @@
 STRUCTURE
 .
 ├── AUTHORS
+├── LINKS
 ├── practical_case -----------------------> REAL CASE ON MONTREAL
 │   ├── montreal_drone.py
 │   └── montreal_snowplow.py
