@@ -5,8 +5,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import theorical_case.snowplow as snowplow
 
 def test_function(name, edges, n, exp):
-    pairs = snowplow.make_graph_eulerian(edges, n)
-    res = snowplow.find_eulerian_cycle(edges, pairs, n)
+    res = snowplow.chinese_postman_directed_solver(edges, n)
     if res == exp:
         print("OK --", name)
     else:
