@@ -1,5 +1,8 @@
 import osmnx as ox
 import networkx as nx
+import tkinter
+import matplotlib.pyplot as plt
+import time
 
 ###REWRITE nx.eulerize()
 from itertools import combinations
@@ -41,37 +44,43 @@ def eulerize(G):
 
 def make_eulerian(city):
     if not nx.is_eulerian(city):
-        #Do it by hand because weight with eulerize is false
         return eulerize(city)
     return city
 
 def get_eulerian_circuit(graph):
     return nx.eulerian_circuit(graph)
 
-def init_graph():
-    # Get the city graph (from OpenStreetMap), filter only the drive ways
-    city = ox.graph_from_place('Issou, France', network_type='drive')
+def init_graph(place):
+    city = ox.graph_from_place(place, network_type='drive')
     city = ox.add_edge_speeds(city)
     city = ox.speed.add_edge_travel_times(city)
+
     for u, v in city.edges():
         city[u][v][0]["weight"] = city.get_edge_data(u, v)[0]["length"]
     return city
 
-city = init_graph()
-eulerian_city = make_eulerian(city.to_undirected())
+def get_best_route(place):
+    print("Loading map from OpenStreetMap ...")
+    city = init_graph(place)
+    print("Apply treatment to the map ...")
+    eulerian_city = make_eulerian(city.to_undirected())
+    print("Find a path to visit all the city ...")
+    eulerian_circuit = get_eulerian_circuit(eulerian_city)
 
-#ox.plot_graph(eulerian_city)
+    print("Generate results ...")
+    length, travel_time = 0, 0
+    route = []
+    for u, v in eulerian_circuit:
+        travel_time += eulerian_city[u][v][0]['travel_time']
+        length += eulerian_city[u][v][0]['weight']
+        route.append(u)
 
-eulerian_circuit = get_eulerian_circuit(eulerian_city)
+    return city, route, length, travel_time
 
-length = 0
-travel_time = 0
-for u, v in eulerian_circuit:
-    travel_time += eulerian_city[u][v][0]['travel_time']
-    length += eulerian_city[u][v][0]['weight']
 
-print("Distance:", round(length), "meters | Travel time:", round(travel_time/60), "minutes")
-
-m = ox.plot_graph_folium(city, popup_attribute='name', tiles='openstreetmap')
-m.save("test.html")
-
+t_b = time.time()
+city, route, length, travel_time = get_best_route("Neuville-sur-Oise, France")
+t_e = time.time()
+print("Compute time:", t_e - t_b, "seconds")
+print("Distance: " + str(round(length)) + " meters | Travel time: " + str(round(travel_time/60)) + " minutes")
+ox.plot_graph_route(city.to_undirected(), route)
