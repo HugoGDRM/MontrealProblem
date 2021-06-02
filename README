@@ -1,0 +1,2 @@
+In order to launch the testsuite:
+    cd tests && chmod +x run.sh && ./run.sh
