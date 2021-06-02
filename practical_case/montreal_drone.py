@@ -1,7 +1,5 @@
 import osmnx as ox
 import networkx as nx
-import tkinter
-import matplotlib.pyplot as plt
 import time
 
 ###REWRITE nx.eulerize()
