@@ -41,9 +41,6 @@ def find_minimum_pairing(graph, n, out_u, in_u):
         for x in range(iN):
             IN.append(i)
 
-    print("OUT", OUT)
-    print("IN", IN)
-
     dist_matrix = np.full((len(OUT), len(IN)), np.inf)
     prevs = [[] for _ in range(n)]
 
@@ -54,10 +51,7 @@ def find_minimum_pairing(graph, n, out_u, in_u):
         for d in range(len(IN)):
             dist_matrix[s][d] = dist[IN[d]]
 
-    print(dist_matrix)
     row_ind, col_ind = linear_sum_assignment(dist_matrix)
-    print(row_ind)
-    print(col_ind)
 
     result = []
     for i in range(len(row_ind)):
@@ -66,7 +60,6 @@ def find_minimum_pairing(graph, n, out_u, in_u):
         get_path(prevs[u], v, path)
         result.append((u, v, dist_matrix[OUT.index(u)][IN.index(v)], path))
 
-    print(result)
     return result
 
     #res = []
@@ -139,10 +132,10 @@ def find_eulerian_cycle(edges, pairs, n):
 #(5, 6, 7), (6, 4, 12), (3, 6, 9), (2, 1, 3), (4, 0, 4), (4, 3, 2), (1, 5, 6)]
 #edges = [(0,1,10),(0, 5, 4), (0,2,2), (2, 6, 8), (0,3,8),(0,4,1),(1,2,4)\
 #        ,(3,1,10),(4,1,3),(3,2,6),(2,4,5),(4,3,2), (6, 0, 4), (5, 4, 8)]
-n = 7
+#n = 7
 #
-out_u, in_u = find_unbalanced_vertices(edges, n)
-M = edges_to_matrix(edges, n)
-pairs = make_graph_eulerian(edges, n)
-res = find_eulerian_cycle(edges, pairs, n)
-print(res)
+#out_u, in_u = find_unbalanced_vertices(edges, n)
+#M = edges_to_matrix(edges, n)
+#pairs = make_graph_eulerian(edges, n)
+#res = find_eulerian_cycle(edges, pairs, n)
+#print(res)
