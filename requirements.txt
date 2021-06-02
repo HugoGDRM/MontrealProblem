@@ -9,6 +9,7 @@ Rtree>=0.9
 Shapely>=1.7
 scipy>=1.1
 folium>=0.12.1
+scikit-learn
 plotly_express
-descarte
+descartes
 git+git://github.com/geopandas/geopandas.git
