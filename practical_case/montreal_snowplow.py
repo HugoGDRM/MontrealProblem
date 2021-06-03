@@ -25,6 +25,12 @@ def edges_to_matrix(edges, n, cor_table):
         matrix[cor_table.index(s)][cor_table.index(d)] = w
     return matrix
 
+def get_path(prev, s, d, path, cor_table):
+    while d >= 0:
+        path.insert(0, cor_table[d])
+        d = prev[d]
+    return path
+
 def find_minimum_pairing(M, n, out_u, in_u, cor_table):
     OUT = []
     for o, oN in out_u:
@@ -36,10 +42,12 @@ def find_minimum_pairing(M, n, out_u, in_u, cor_table):
             IN.append(cor_table.index(i))
 
     dist_matrix = np.full((len(OUT), len(IN)), np.inf)
+    prevs = [[] for _ in range(n)]
 
     for s in range(len(OUT)):
-        dist = dijkstra(csgraph=M, directed=True,\
-                indices=OUT[s], return_predecessors=False)
+        dist, prev = dijkstra(csgraph=M, directed=True,\
+                indices=OUT[s], return_predecessors=True)
+        prevs[OUT[s]] = prev
         for d in range(len(IN)):
             dist_matrix[s][d] = dist[IN[d]]
 
@@ -48,18 +56,18 @@ def find_minimum_pairing(M, n, out_u, in_u, cor_table):
     result = []
     for i in range(len(row_ind)):
         u, v = OUT[row_ind[i]], IN[col_ind[i]]
-        result.append((u, v))
+        path = []
+        get_path(prevs[u], u, v, path, cor_table)
+        result.append((cor_table[u], cor_table[v], dist_matrix[OUT.index(u)][IN.index(v)], path))
 
     return result
 
-def get_datas(G, s, d):
+def get_datas(G, s, d, w):
     path = nx.shortest_path(G, source=s, target=d, weight='weight')
     travel_time = 0
-    weight = 0
     for i in range(1, len(path)):
         travel_time += G[path[i-1]][path[i]][0]['travel_time']
-        weight += G[path[i-1]][path[i]][0]['weight']
-    return {"weight": weight, "travel_time": travel_time}
+    return {"weight": w, "travel_time": travel_time}
 
 def eulerize(G):
     edges = []
@@ -80,12 +88,11 @@ def eulerize(G):
     M = edges_to_matrix(edges, n, cor_table)
     pairs = find_minimum_pairing(M, n, out_u, in_u, cor_table)
     tmp = []
-    for u, v in pairs:
-        s, d = cor_table[u], cor_table[v]
-        #Cannot add s, d if it exists multiple nodes between
-        tmp.append((s, d, get_datas(G, s, d)))
+    for u, v, w, _ in pairs:
+        tmp.append((u, v, get_datas(G, u, v, w)))
 
     G.add_edges_from(tmp)
+    return pairs
 
 def init_graph(place):
     city = ox.graph_from_place(place, network_type='drive')
@@ -117,12 +124,22 @@ def convert_graph(graph):
     return new_graph
 
 def make_eulerian(city):
+    pairs = None
     if not nx.is_eulerian(city):
-        eulerize(city)
-    return city
+        pairs = eulerize(city)
+    return city, pairs
 
 def get_eulerian_circuit(graph):
     return nx.eulerian_circuit(graph)
+
+def find_corresponding_pair(u, v, pairs):
+    if not pairs or not len(pairs):
+        return None
+
+    for i in range(len(pairs)):
+        if u == pairs[i][0] and v == pairs[i][1]:
+            return pairs.pop(i)
+    return None
 
 def get_best_route(place):
     print("Loading map from OpenStreetMap ...")
@@ -130,7 +147,7 @@ def get_best_route(place):
     print("Convert graph to fully directed graph ...")
     converted_graph = convert_graph(city)
     print("Apply treatment to the map ...")
-    eulerian_city = make_eulerian(converted_graph)
+    eulerian_city, pairs = make_eulerian(converted_graph)
     print("Find a path to visit all the city ...")
     eulerian_circuit = get_eulerian_circuit(eulerian_city)
 
@@ -138,11 +155,16 @@ def get_best_route(place):
     length, travel_time = 0, 0
     route = []
     for u, v in eulerian_circuit:
+        pair = find_corresponding_pair(u, v, pairs)
+        if pair:
+            for e in pair[3][:-1]:
+                route.append(e)
+        else:
+            route.append(u)
         travel_time += eulerian_city[u][v][0]["travel_time"]
         length += eulerian_city[u][v][0]["weight"]
-        route.append(u)
 
     return city, route, length, travel_time
 
-city, route, length, travel_time = get_best_route("Neuville-sur-Oise, France")
+city, route, length, travel_time = get_best_route("Nice, France")
 ox.plot_graph_route(city, route)
