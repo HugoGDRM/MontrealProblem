@@ -1,0 +1,33 @@
+STRUCTURE
+.
+├── AUTHORS
+├── LINKS
+├── practical_case -----------------------> REAL CASE ON MONTREAL
+│   ├── montreal_drone.py
+│   └── montreal_snowplow.py
+├── README
+├── requirements.txt
+├── tests --------------------------------> TESTSUITE FOR THEORICAL CASE
+│   ├── run.sh
+│   ├── theorical_drone_tests.py
+│   └── theorical_snowplow_tests.py
+└── theorical_case -----------------------> THEORICAL CASE
+    ├── drone.py
+    └── snowplow.py
+
+--------------------------------------------------------------------------------
+DEPENDENCIES
+
+In order to install dependencies:
+    `pip install -r requirements.txt`
+
+--------------------------------------------------------------------------------
+TESTSUITE
+
+In order to launch the testsuite for both drone and snowplow:
+    If the command to launch a python script is `python` and not `python3`,
+    change it in the file `tests/run.sh` at line 5.
+
+    Then run:
+    `cd tests && chmod +x run.sh && ./run.sh && cd ..`
+
