@@ -1,8 +1,10 @@
 STRUCTURE
 .
+├── Appero_Rapport.pdf
 ├── AUTHORS
 ├── LINKS
 ├── practical_case -----------------------> REAL CASE ON MONTREAL
+│   ├── animation.py
 │   ├── montreal_drone.py
 │   └── montreal_snowplow.py
 ├── README
