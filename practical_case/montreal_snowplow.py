@@ -165,6 +165,3 @@ def get_best_route(place):
         length += eulerian_city[u][v][0]["weight"]
 
     return city, route, length, travel_time
-
-city, route, length, travel_time = get_best_route("Nice, France")
-ox.plot_graph_route(city, route)

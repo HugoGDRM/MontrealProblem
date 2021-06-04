@@ -74,11 +74,3 @@ def get_best_route(place):
         route.append(u)
 
     return city, route, length, travel_time
-
-
-#t_b = time.time()
-#city, route, length, travel_time = get_best_route("Neuville-sur-Oise, France")
-#t_e = time.time()
-#print("Compute time:", t_e - t_b, "seconds")
-#print("Distance: " + str(round(length)) + " meters | Travel time: " + str(round(travel_time/60)) + " minutes")
-#ox.plot_graph_route(city.to_undirected(), route)
